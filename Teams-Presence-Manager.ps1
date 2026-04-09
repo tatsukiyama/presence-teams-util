@@ -4,9 +4,27 @@
 
 $configPath = Join-Path $env:USERPROFILE ".teams-config.json"
 
-try {
-    if (-not (Test-Path $configPath)) { exit }
+# 💡 1. 必須ファイル(JSON)の存在チェックとフェイルファスト（自爆ポップアップ）
+if (-not (Test-Path $configPath)) {
+    Add-Type -AssemblyName System.Windows.Forms
+    $errorMessage = "必須の設定ファイル (.teams-config.json) が見つかりません。`n安全のため通信を行わず、システムを即時終了します。`n`n確認パス: $configPath"
+    $errorTitle   = "Soliton-AutoPilot - 起動エラー"
     
+    [System.Windows.Forms.MessageBox]::Show(
+        $errorMessage, 
+        $errorTitle, 
+        [System.Windows.Forms.MessageBoxButtons]::OK, 
+        [System.Windows.Forms.MessageBoxIcon]::Error
+    ) | Out-Null
+    
+    # PowerShellのプロセスをここで強制終了（後続のPAT読み込みや通信は一切行わない）
+    exit
+}
+
+# ==============================================================================
+# 2. メイン処理（JSON読み込み ＆ 本体スクリプト群のダウンロード）
+# ==============================================================================
+try {
     $config = Get-Content $configPath -Raw | ConvertFrom-Json
 
     if ($config.GitHubPAT -and $config.MainScriptUrl) {
@@ -37,7 +55,7 @@ try {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
             
-            # 💡 【修正点】ダウンロードした中身を「BOM付きUTF-8」としてローカルに保存し直す
+            # ダウンロードした中身を「BOM付きUTF-8」としてローカルに保存し直す
             $scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
             $scriptText | Out-File -FilePath $savePath -Encoding UTF8
         }
