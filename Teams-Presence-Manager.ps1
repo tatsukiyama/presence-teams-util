@@ -44,11 +44,13 @@ try {
 
         $baseUrl = $config.MainScriptUrl.Substring(0, $config.MainScriptUrl.LastIndexOf('/'))
 
+        # 📌 ここを修正: Win32-Definitions.ps1 をダウンロード対象に追加
         $downloadList = @(
             @{ Remote="Main-Controller.ps1"; Local="Main-Controller.ps1" },
             @{ Remote="Modules/Logger-Provider.ps1"; Local="Logger-Provider.ps1" },
             @{ Remote="Modules/Login-Handler.ps1"; Local="Login-Handler.ps1" },
-            @{ Remote="Modules/KeepAlive-Engine.ps1"; Local="KeepAlive-Engine.ps1" }
+            @{ Remote="Modules/KeepAlive-Engine.ps1"; Local="KeepAlive-Engine.ps1" },
+            @{ Remote="Modules/Win32-Definitions.ps1"; Local="Win32-Definitions.ps1" } 
         )
 
         foreach ($item in $downloadList) {
