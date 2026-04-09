@@ -18,7 +18,6 @@ try {
 
         $workDir = Join-Path $env:TEMP "TeamsPresenceWork"
         
-        # 💡 【改善ポイント】すでにフォルダがある場合は、中身の古いファイルをすべて強制削除する
         if (Test-Path $workDir) {
             Remove-Item -Path (Join-Path $workDir "*") -Force -Recurse -ErrorAction SilentlyContinue
         } else {
@@ -37,7 +36,10 @@ try {
         foreach ($item in $downloadList) {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
-            Invoke-RestMethod -Uri $fileUrl -Headers $headers -OutFile $savePath
+            
+            # 💡 【修正点】ダウンロードした中身を「BOM付きUTF-8」としてローカルに保存し直す
+            $scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
+            $scriptText | Out-File -FilePath $savePath -Encoding UTF8
         }
 
         $mainPath = Join-Path $workDir "Main-Controller.ps1"
