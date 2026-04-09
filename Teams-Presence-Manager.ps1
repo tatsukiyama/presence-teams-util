@@ -17,13 +17,16 @@ try {
         }
 
         $workDir = Join-Path $env:TEMP "TeamsPresenceWork"
-        if (-not (Test-Path $workDir)) {
+        
+        # 💡 【改善ポイント】すでにフォルダがある場合は、中身の古いファイルをすべて強制削除する
+        if (Test-Path $workDir) {
+            Remove-Item -Path (Join-Path $workDir "*") -Force -Recurse -ErrorAction SilentlyContinue
+        } else {
             New-Item -ItemType Directory -Path $workDir | Out-Null
         }
 
         $baseUrl = $config.MainScriptUrl.Substring(0, $config.MainScriptUrl.LastIndexOf('/'))
 
-        # 取得元のパス（Remote）と、保存するファイル名（Local）をマッピング
         $downloadList = @(
             @{ Remote="Main-Controller.ps1"; Local="Main-Controller.ps1" },
             @{ Remote="Modules/Logger-Provider.ps1"; Local="Logger-Provider.ps1" },
