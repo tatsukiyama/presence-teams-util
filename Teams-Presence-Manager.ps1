@@ -58,11 +58,11 @@ try {
             $savePath = Join-Path $workDir $item.Local
             
             # ダウンロードした中身を「BOM付きUTF-8」としてローカルに保存し直す
-            #$scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
-            #$scriptText | Out-File -FilePath $savePath -Encoding UTF8
-            # ダウンロードした中身を、OS標準（Shift-JIS）としてローカルに保存する
             $scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
-            $scriptText | Out-File -FilePath $savePath -Encoding Default            
+            $scriptText | Out-File -FilePath $savePath -Encoding UTF8
+            # ダウンロードした中身を、OS標準（Shift-JIS）としてローカルに保存する
+            #$scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
+            #$scriptText | Out-File -FilePath $savePath -Encoding Default            
         }
 
         $mainPath = Join-Path $workDir "Main-Controller.ps1"
