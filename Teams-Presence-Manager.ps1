@@ -66,6 +66,7 @@ try {
             #$scriptText | Out-File -FilePath $savePath -Encoding Default            
         }
         #>
+        <#
         foreach ($item in $downloadList) {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
@@ -76,6 +77,18 @@ try {
             # ② そのままだとBOM無しになってしまうので、PowerShell向けに「BOM付きUTF-8」で上書き変換
             $textContent = Get-Content -Path $savePath -Encoding UTF8
             $textContent | Out-File -FilePath $savePath -Encoding UTF8
+        }
+        #>
+        foreach ($item in $downloadList) {
+            $fileUrl = "$baseUrl/$($item.Remote)"
+            $savePath = Join-Path $workDir $item.Local
+            
+            # ① 文字を勝手に解釈させないよう、ファイルごとそのままダウンロード
+            Invoke-WebRequest -Uri $fileUrl -Headers $headers -OutFile $savePath
+            
+            # ② PowerShellが絶対に読み間違えないように「BOM付きUTF-8」として上書き保存
+            $safeText = [System.IO.File]::ReadAllText($savePath, [System.Text.Encoding]::UTF8)
+            [System.IO.File]::WriteAllText($savePath, $safeText, [System.Text.Encoding]::UTF8)
         }
 
         $mainPath = Join-Path $workDir "Main-Controller.ps1"
