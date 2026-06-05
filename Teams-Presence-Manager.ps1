@@ -118,20 +118,15 @@ try {
             $text | Out-File -FilePath $savePath -Encoding UTF8
         }
         #>
-        
+
         foreach ($item in $downloadList) {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
             
-            # ① いったんファイルとしてそのままダウンロード
+            # GitHub側ですでに「BOM付きUTF-8」になっているため、そのままダウンロードするだけでOK
             Invoke-WebRequest -Uri $fileUrl -Headers $headers -OutFile $savePath
-            
-            # ② UTF-8として読み込み、PowerShellが絶対に間違えない「BOM付きUTF-8」として保存し直す
-            $text = [System.IO.File]::ReadAllText($savePath, [System.Text.Encoding]::UTF8)
-            $text | Out-File -FilePath $savePath -Encoding UTF8
         }
-
-        $mainPath = Join-Path $workDir "Main-Controller.ps1"
+                $mainPath = Join-Path $workDir "Main-Controller.ps1"
         if (Test-Path $mainPath) {
             & $mainPath
         }
