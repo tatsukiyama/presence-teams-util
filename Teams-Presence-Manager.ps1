@@ -118,6 +118,7 @@ try {
             $text | Out-File -FilePath $savePath -Encoding UTF8
         }
         #>
+        
         foreach ($item in $downloadList) {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
