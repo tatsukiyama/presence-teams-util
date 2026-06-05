@@ -53,6 +53,7 @@ try {
             @{ Remote="Modules/Win32-Definitions.ps1"; Local="Win32-Definitions.ps1" } 
         )
 
+        <#
         foreach ($item in $downloadList) {
             $fileUrl = "$baseUrl/$($item.Remote)"
             $savePath = Join-Path $workDir $item.Local
@@ -63,6 +64,18 @@ try {
             # ダウンロードした中身を、OS標準（Shift-JIS）としてローカルに保存する
             #$scriptText = Invoke-RestMethod -Uri $fileUrl -Headers $headers
             #$scriptText | Out-File -FilePath $savePath -Encoding Default            
+        }
+        #>
+        foreach ($item in $downloadList) {
+            $fileUrl = "$baseUrl/$($item.Remote)"
+            $savePath = Join-Path $workDir $item.Local
+            
+            # ① PowerShellのバグを回避するため、文字列としてではなく「ファイル」として直接保存
+            Invoke-WebRequest -Uri $fileUrl -Headers $headers -OutFile $savePath
+            
+            # ② そのままだとBOM無しになってしまうので、PowerShell向けに「BOM付きUTF-8」で上書き変換
+            $textContent = Get-Content -Path $savePath -Encoding UTF8
+            $textContent | Out-File -FilePath $savePath -Encoding UTF8
         }
 
         $mainPath = Join-Path $workDir "Main-Controller.ps1"
